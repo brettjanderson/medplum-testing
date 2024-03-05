@@ -767,6 +767,7 @@ export class MedplumClient extends EventTarget {
 
   private async attemptResumeActiveLogin(): Promise<void> {
     const activeLogin = this.getActiveLogin();
+    console.log(activeLogin);
     if (!activeLogin) {
       return;
     }
@@ -2489,6 +2490,8 @@ export class MedplumClient extends EventTarget {
     this.sessionDetails = undefined;
     this.accessTokenExpires = tryGetJwtExpiration(accessToken);
     this.medplumServer = isMedplumAccessToken(accessToken);
+    console.log('Medplum server:', this.medplumServer);
+    console.log('Access token:', this.accessTokenExpires);
   }
 
   /**
@@ -2513,6 +2516,7 @@ export class MedplumClient extends EventTarget {
     this.profilePromise = new Promise((resolve, reject) => {
       this.get('auth/me')
         .then((result: SessionDetails) => {
+          console.log('Refresh profile result:', result.profile.id);
           this.profilePromise = undefined;
           const profileChanged = this.sessionDetails?.profile?.id !== result.profile.id;
           this.sessionDetails = result;
@@ -2521,7 +2525,10 @@ export class MedplumClient extends EventTarget {
           }
           resolve(result.profile);
         })
-        .catch(reject);
+        .catch((r) => {
+          console.log(r);
+          reject(r);
+        });
     });
 
     return this.profilePromise;
